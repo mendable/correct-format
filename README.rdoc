@@ -1,0 +1,83 @@
+= Correct-Format Plugin
+
+* Author: Jason Lambert
+* Homepage: http://www.mendable.com
+* GitHub: http://www.github.com/mendable
+
+This plugin allows you to automatically correct simple user input mistakes and format user-input without raising an ActiveRecord Error and without inserting inconsistently formatted data into your database. Using this plugin will enhance the usability and user-friendlyness of your application and increase your data integrity.
+
+You can automatically:
+* Make a field uppercase
+* Make a field lowercase
+* Capitalize the first letter of the first word (and lower case everything else)
+* Capitalize the first letter of all words (and lower case everything else)
+* Replace comma with period and downcase email addresses
+
+
+== Installation
+  git submodule add git://github.com/mendable/correct-format.git vendor/plugins/correct-format
+  git commit -am "add correct-format plugin"
+
+Ensure that you have this in your config/deploy.rb:
+  set :git_enable_submodules, true
+so that the submodules are pulled down when you deploy your application.
+
+
+== Example Usage
+  class User < ActiveRecord::Base
+    # Make usernames consistently lower case
+    correct_format_downcase :username
+
+    # Replace comma's with periods in email address, and make email address all lower case
+    correct_format_email :email
+
+    # Capitalize first letter of first word, and downcase the rest
+    correct_format_capitalize :username
+
+    # Capitalize all first letters of ALL WORDS in the string
+    correct_format_capitalize_each :address_line_1, :address_line_2
+
+    # UK Postcodes are upper case
+    correct_format_upcase :postcode
+
+    # apply a function to EVERY string field in a record
+    correct_format_capitalize self.attributes.select{|k, v| self.column_for_attribute(k).type == :string }.map(&:first)
+  end
+
+
+== Functions
+*correct_format_downcase*:: Make entire field downcase
+*correct_format_capitalize*:: Capitalize first letter of FIRST word
+*correct_format_capitalize_each*:: Capitalize first letter of each word
+*correct_format_email*:: Format email address field, downcase everything and convert commas to periods
+*correct_format_upcase*:: Make entire field uppercase
+
+
+== Examples
+*correct_format_downcase*:: <tt>MR JOHN SMITH</tt> becomes <tt>mr john smith</tt>
+*correct_format_capitalize*:: <tt>A Sentence HERE</tt> becomes <tt>A sentence here</tt>
+*correct_format_capitalize_each*:: <tt>123 FOOBAR STREET</tt> becomes <tt>123 Foobar Street</tt>
+*correct_format_email*:: <tt>example@HOTMAIL,com</tt> becomes <tt>example@hotmail.com</tt>
+*correct_format_upcase*:: <tt>w1 5ql</tt> becomes <tt>W1 5QL</tt>
+
+
+== Testing
+This plugin contains a full suite of tests, you need the sqlite3 gem available to be able to run the tests. You probably already have this, but in case you do not, then with Debian/Ubuntu, do this to install it:
+
+    $ sudo apt-get install sqlite3 libsqlite3-dev
+    $ sudo gem install sqlite3-ruby
+
+
+Then run <tt>rake test</tt> from the <tt>vendor/plugins/correct-format</tt> directory, or use: 
+    $ rake test:plugins
+
+
+== Patches
+If you branch and enhance this plugin in anyway, please do contact me to let me know, either on GitHub (http://www.github.com/mendable) or through my website (http://www.mendable.com).
+
+
+== Licence
+
+Copyright (c) 2009 Jason Lambert (http://www.mendable.com).
+
+Code released under the MIT license.
